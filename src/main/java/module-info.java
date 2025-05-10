@@ -10,6 +10,8 @@ module com.example.weatherappjfx {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires java.net.http;
+    requires com.fasterxml.jackson.databind;
 
     opens com.example.weatherappjfx to javafx.fxml;
     exports com.example.weatherappjfx;

@@ -8,12 +8,10 @@
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
-
-    <Label fx:id="welcomeText" />
    <Label text="Data" />
-   <DatePicker />
-   <Label text="Miejscowość" />
-   <TextField />
+   <DatePicker fx:id="date" />
+   <Label  text="Miejscowość" />
+   <TextField fx:id="placeText"   />
     <VBox fx:id="checkboxContainer" spacing="5" />
-    <Button onAction="#onHelloButtonClick" text="Pokaż Dane" />
+    <Button onAction="#onButtonClick" text="Pokaż Dane" />
 </VBox>
