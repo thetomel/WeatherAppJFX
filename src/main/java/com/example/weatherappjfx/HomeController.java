@@ -18,7 +18,13 @@ public class HomeController {
     public VBox checkboxContainer;
     List<Parameter> params = List.of(
             new Parameter("temperature_2m", "Temperatura"),
-            new Parameter("B", "Testowy parametr 2")
+            new Parameter( "precipitation", "Opad atmosferyczny"),
+            new Parameter( "rain", "Deszcz"),
+            new Parameter( "wind_speed_10m", "Prędkość wiatru"),
+            new Parameter("soil_temperature_0cm", "Temperatura Gleby"),
+            new Parameter("surface_pressure", "Ciśnienie przy powierzchni")
+
+            //,rain,showers,snowfall,relative_humidity_2m,apparent_temperature,is_day,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m
     );
 
     private final Map<Parameter, CheckBox> checkBoxMap = new HashMap<>();
@@ -60,10 +66,10 @@ public class HomeController {
     protected void onButtonClick() {
 
         try {
-            weatherBox.fetchWeather(placeText.getText(), params);
+            weatherBox.fetchWeather(placeText.getText(), getSelectedApiKeys());
 
         } catch (Exception e) {
-            welcomeText.setText("Error fetching weather data: " + e.getMessage());
+            System.out.println(e);
             e.printStackTrace();
         }
     }

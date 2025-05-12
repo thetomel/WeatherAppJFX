@@ -1,17 +1,17 @@
 package com.example.weatherappjfx.api;
 
 import com.example.weatherappjfx.Parameter;
-import javafx.concurrent.Task;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.scene.control.CheckBox;
 
 public class ApiController {
     String url = "https://api.open-meteo.com/v1/";
@@ -48,49 +48,48 @@ public class ApiController {
 
     public double[] findPlace(String name){
         try {
-            System.out.println(name);
             HttpClient geoClient = HttpClient.newHttpClient();
             String geoUrl = "https://geocoding-api.open-meteo.com/v1/search?name=" + name + "&count=1&language=pl&format=json";
-            HttpRequest geoRequest = HttpRequest.newBuilder().uri(URI.create(geoUrl)).GET().build();
+            HttpRequest geoRequest = HttpRequest
+                    .newBuilder()
+                    .uri(URI.create(geoUrl))
+                    .GET()
+                    .build();
 
             HttpResponse<String> repsonse = geoClient.newBuilder()
                     .build()
                     .send(geoRequest, HttpResponse.BodyHandlers.ofString());
 
             double[] geo = extractCoordinates(String.valueOf(repsonse.body()));
-            System.out.println(geoUrl);
             return geo;
         }
         catch (Exception e){
             throw new RuntimeException(e);
         }
     }
-    public void fetchWeather(String place, List<Parameter> params) {
+    public void fetchWeather(String place, List<String> params) {
         double[] geoPosition = findPlace(place);
         try {
-            Task<String> task = new Task<>() {
-                @Override
-                protected String call() throws Exception {
-                    String urlFetch = url + " forecast?latitude=" + geoPosition[0] + "&longitude=" + geoPosition[1] + "&hourly=temperature_2m";
+                    String urlFetch = url + "forecast?latitude=" + geoPosition[0] + "&longitude=" + geoPosition[1] + "&current=";
+                    for(String item: params){
+                        urlFetch += ',' + item;
+                    }
+                    System.out.println(urlFetch);
+                    HttpClient weatherClient = HttpClient.newHttpClient();
 
-                    HttpClient client = HttpClient.newHttpClient();
-
-                    HttpRequest request = HttpRequest.newBuilder()
+                    HttpRequest request =HttpRequest
+                            .newBuilder()
                             .uri(URI.create(urlFetch))
                             .GET()
                             .build();
 
-                    client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                            .thenApply(HttpResponse::body)
-                            .thenAccept(response -> {
-
-                            })
-                            .join();
-                    return null;
-                }
-            };
+            HttpResponse<String> response = weatherClient.newBuilder()
+                    .build()
+                    .send(request, HttpResponse.BodyHandlers.ofString());
+                    System.out.println(response.body());
         }
         catch(Exception e) {
+            System.err.println(e.getMessage());
             throw new RuntimeException("Error while fetching weather data");
 
         }
