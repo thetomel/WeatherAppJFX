@@ -12,6 +12,7 @@ module com.example.weatherappjfx {
     requires com.almasb.fxgl.all;
     requires java.net.http;
     requires com.fasterxml.jackson.databind;
+    requires com.google.gson;
 
     opens com.example.weatherappjfx to javafx.fxml;
     exports com.example.weatherappjfx;

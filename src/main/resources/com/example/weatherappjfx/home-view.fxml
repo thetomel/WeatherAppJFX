@@ -10,8 +10,9 @@
     </padding>
    <Label text="Data" />
    <DatePicker fx:id="date" />
-   <Label  text="Miejscowość" />
-   <TextField fx:id="placeText"   />
+   <Label text="Miejscowość" />
+   <TextField fx:id="placeText" />
     <VBox fx:id="checkboxContainer" spacing="5" />
     <Button onAction="#onButtonClick" text="Pokaż Dane" />
+    <TextArea fx:id="dataText" />
 </VBox>

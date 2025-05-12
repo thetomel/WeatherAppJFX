@@ -1,17 +1,13 @@
 package com.example.weatherappjfx.api;
 
-import com.example.weatherappjfx.Parameter;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javafx.scene.control.CheckBox;
 
 public class ApiController {
     String url = "https://api.open-meteo.com/v1/";
@@ -67,26 +63,27 @@ public class ApiController {
             throw new RuntimeException(e);
         }
     }
-    public void fetchWeather(String place, List<String> params) {
+    public String fetchWeather(String place, List<String> params) {
         double[] geoPosition = findPlace(place);
         try {
-                    String urlFetch = url + "forecast?latitude=" + geoPosition[0] + "&longitude=" + geoPosition[1] + "&current=";
-                    for(String item: params){
-                        urlFetch += ',' + item;
-                    }
-                    System.out.println(urlFetch);
-                    HttpClient weatherClient = HttpClient.newHttpClient();
+            String urlFetch = url + "forecast?latitude=" + geoPosition[0] + "&longitude=" + geoPosition[1] + "&current=";
+            for (String item : params) {
+                urlFetch += ',' + item;
+            }
+            System.out.println(urlFetch);
+            HttpClient weatherClient = HttpClient.newHttpClient();
 
-                    HttpRequest request =HttpRequest
-                            .newBuilder()
-                            .uri(URI.create(urlFetch))
-                            .GET()
-                            .build();
+            HttpRequest request = HttpRequest
+                    .newBuilder()
+                    .uri(URI.create(urlFetch))
+                    .GET()
+                    .build();
 
             HttpResponse<String> response = weatherClient.newBuilder()
                     .build()
                     .send(request, HttpResponse.BodyHandlers.ofString());
-                    System.out.println(response.body());
+            System.out.println(response.body());
+            return response.body();
         }
         catch(Exception e) {
             System.err.println(e.getMessage());

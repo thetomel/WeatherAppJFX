@@ -1,11 +1,11 @@
 package com.example.weatherappjfx;
 
 import com.example.weatherappjfx.api.ApiController;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
 import java.time.LocalDate;
@@ -14,18 +14,29 @@ import java.util.List;
 import java.util.Map;
 
 public class HomeController {
+    private Map<String, String> weatherData;
     private ApiController weatherBox;
     public VBox checkboxContainer;
     List<Parameter> params = List.of(
             new Parameter("temperature_2m", "Temperatura"),
-            new Parameter( "precipitation", "Opad atmosferyczny"),
-            new Parameter( "rain", "Deszcz"),
-            new Parameter( "wind_speed_10m", "Prędkość wiatru"),
+            new Parameter("precipitation", "Opad atmosferyczny"),
+            new Parameter("rain", "Deszcz"),
+            new Parameter("wind_speed_10m", "Prędkość wiatru"),
             new Parameter("soil_temperature_0cm", "Temperatura Gleby"),
             new Parameter("surface_pressure", "Ciśnienie przy powierzchni")
 
             //,rain,showers,snowfall,relative_humidity_2m,apparent_temperature,is_day,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m
     );
+
+    @FXML
+    private Label welcomeText;
+    @FXML
+    private TextField placeText;
+
+    @FXML
+    private DatePicker date;
+    @FXML
+    private TextArea dataText;
 
     private final Map<Parameter, CheckBox> checkBoxMap = new HashMap<>();
 
@@ -33,6 +44,7 @@ public class HomeController {
     public void initialize() {
         // Initialize the API controller
         weatherBox = new ApiController();
+        weatherData = new HashMap<>();
 
         // Create checkboxes for each parameter
         for (Parameter param : params) {
@@ -55,18 +67,25 @@ public class HomeController {
     }
 
     @FXML
-    private Label welcomeText;
-    @FXML
-    private TextField placeText;
-
-    @FXML
-    private DatePicker date;
-
-    @FXML
     protected void onButtonClick() {
 
         try {
-            weatherBox.fetchWeather(placeText.getText(), getSelectedApiKeys());
+            JsonObject json = new Gson().fromJson(weatherBox.fetchWeather(placeText.getText(), getSelectedApiKeys()), JsonObject.class);
+            JsonObject data = json.getAsJsonObject("current");
+            dataText.setEditable(false);
+            int skipCount =0;
+            for(String key: data.keySet()) {
+                if (skipCount < 2) {
+                    skipCount++;
+                    continue;
+                }
+                JsonElement element = data.get(key);
+                weatherData.put(key, element.getAsString());
+                System.out.println(weatherData.get(key));
+                dataText.appendText(key + ": "+ weatherData.get(key) + "\n" + element.getAsString());
+            }
+
+
 
         } catch (Exception e) {
             System.out.println(e);
