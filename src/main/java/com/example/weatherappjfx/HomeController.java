@@ -1,9 +1,12 @@
 package com.example.weatherappjfx;
 
 import com.example.weatherappjfx.api.ApiController;
+import com.example.weatherappjfx.api.dateType;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -37,6 +40,11 @@ public class HomeController {
     private DatePicker date;
     @FXML
     private TextArea dataText;
+    @FXML
+    private ChoiceBox<String> dateChoiceBox;
+
+    private dateType currentDateType;
+
 
     private final Map<Parameter, CheckBox> checkBoxMap = new HashMap<>();
 
@@ -57,6 +65,9 @@ public class HomeController {
         if (date.getValue() == null) {
             date.setValue(LocalDate.now());
         }
+
+        dateChoiceBox.getItems().addAll("Archiwalna", "Aktualna", "Prognoza");
+        dateChoiceBox.setValue("Aktualna");
     }
 
     public List<String> getSelectedApiKeys() {
@@ -70,7 +81,7 @@ public class HomeController {
     protected void onButtonClick() {
 
         try {
-            JsonObject json = new Gson().fromJson(weatherBox.fetchWeather(placeText.getText(), getSelectedApiKeys()), JsonObject.class);
+            JsonObject json = new Gson().fromJson(weatherBox.fetchWeather(placeText.getText(), getSelectedApiKeys(),currentDateType ), JsonObject.class);
             JsonObject data = json.getAsJsonObject("current");
             dataText.setEditable(false);
             int skipCount =0;

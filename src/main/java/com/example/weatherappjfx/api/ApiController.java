@@ -63,7 +63,7 @@ public class ApiController {
             throw new RuntimeException(e);
         }
     }
-    public String fetchWeather(String place, List<String> params) {
+    public String fetchWeather(String place, List<String> params, dateType type) {
         double[] geoPosition = findPlace(place);
         try {
             String urlFetch = url + "forecast?latitude=" + geoPosition[0] + "&longitude=" + geoPosition[1] + "&current=";
