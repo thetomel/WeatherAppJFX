@@ -9,8 +9,12 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
    <ChoiceBox fx:id="dateChoiceBox" prefWidth="150.0" />
-   <Label text="Data" />
-   <DatePicker fx:id="date" />
+
+    <VBox fx:id="datePickerContainer">
+        <Label text="Data" />
+        <DatePicker fx:id="date" />
+    </VBox>
+
    <Label text="Miejscowość" />
    <TextField fx:id="placeText" />
     <VBox fx:id="checkboxContainer" spacing="5" />

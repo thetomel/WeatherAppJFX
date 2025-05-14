@@ -35,15 +35,16 @@ public class HomeController {
     private Label welcomeText;
     @FXML
     private TextField placeText;
-
     @FXML
     private DatePicker date;
     @FXML
     private TextArea dataText;
     @FXML
     private ChoiceBox<String> dateChoiceBox;
+    @FXML
+    private VBox datePickerContainer;
 
-    private dateType currentDateType;
+    private dateType currentDateType = dateType.CURRENT;
 
 
     private final Map<Parameter, CheckBox> checkBoxMap = new HashMap<>();
@@ -66,8 +67,30 @@ public class HomeController {
             date.setValue(LocalDate.now());
         }
 
+        switchVisibility(datePickerContainer, false);
+
         dateChoiceBox.getItems().addAll("Archiwalna", "Aktualna", "Prognoza");
         dateChoiceBox.setValue("Aktualna");
+        dateChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, value) -> {
+            switchVisibility(datePickerContainer, true);
+            switch (value) {
+                case "Archiwalna":
+                    currentDateType = dateType.ARCHIVAL;
+                    break;
+                case "Aktualna":
+                    currentDateType = dateType.CURRENT;
+                    switchVisibility(datePickerContainer, false);
+                    break;
+                case "Prognoza":
+                    currentDateType = dateType.FORECAST;
+                    break;
+            }
+        });
+    }
+
+    void switchVisibility(VBox vbox, boolean visible) {
+        vbox.setVisible(visible);
+        vbox.setManaged(visible);
     }
 
     public List<String> getSelectedApiKeys() {
