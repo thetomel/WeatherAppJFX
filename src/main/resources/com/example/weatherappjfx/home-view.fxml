@@ -10,10 +10,12 @@
     </padding>
    <ChoiceBox fx:id="dateChoiceBox" prefWidth="150.0" />
 
-    <VBox fx:id="datePickerContainer">
+    <HBox fx:id="datePickerContainer">
+        <Label text="Dzień" />
+        <DatePicker fx:id="startDate" />
         <Label text="Data" />
-        <DatePicker fx:id="date" />
-    </VBox>
+        <DatePicker fx:id="endDate" />
+    </HBox>
 
    <Label text="Miejscowość" />
    <TextField fx:id="placeText" />

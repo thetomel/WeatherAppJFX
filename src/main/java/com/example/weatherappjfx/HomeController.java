@@ -3,15 +3,14 @@ package com.example.weatherappjfx;
 import com.example.weatherappjfx.api.ApiController;
 import com.example.weatherappjfx.api.dateType;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,13 +35,15 @@ public class HomeController {
     @FXML
     private TextField placeText;
     @FXML
-    private DatePicker date;
+    private DatePicker startDate;
+    @FXML
+    private DatePicker endDate;
     @FXML
     private TextArea dataText;
     @FXML
     private ChoiceBox<String> dateChoiceBox;
     @FXML
-    private VBox datePickerContainer;
+    private HBox datePickerContainer;
 
     private dateType currentDateType = dateType.CURRENT;
 
@@ -51,20 +52,14 @@ public class HomeController {
 
     @FXML
     public void initialize() {
-        // Initialize the API controller
         weatherBox = new ApiController();
         weatherData = new HashMap<>();
+        dataText.setEditable(false);
 
-        // Create checkboxes for each parameter
         for (Parameter param : params) {
             CheckBox cb = new CheckBox(param.getDisplayName());
             checkboxContainer.getChildren().add(cb);
             checkBoxMap.put(param, cb);
-        }
-
-        // Set default date to today if not already set
-        if (date.getValue() == null) {
-            date.setValue(LocalDate.now());
         }
 
         switchVisibility(datePickerContainer, false);
@@ -88,7 +83,7 @@ public class HomeController {
         });
     }
 
-    void switchVisibility(VBox vbox, boolean visible) {
+    void switchVisibility(HBox vbox, boolean visible) {
         vbox.setVisible(visible);
         vbox.setManaged(visible);
     }
@@ -102,28 +97,110 @@ public class HomeController {
 
     @FXML
     protected void onButtonClick() {
-
         try {
-            JsonObject json = new Gson().fromJson(weatherBox.fetchWeather(placeText.getText(), getSelectedApiKeys(),currentDateType ), JsonObject.class);
-            JsonObject data = json.getAsJsonObject("current");
-            dataText.setEditable(false);
-            int skipCount =0;
-            for(String key: data.keySet()) {
-                if (skipCount < 2) {
-                    skipCount++;
-                    continue;
+            JsonObject json = new Gson().fromJson(weatherBox.fetchWeather(placeText.getText(), getSelectedApiKeys(), currentDateType), JsonObject.class);
+            weatherData.clear();
+            dataText.clear();
+
+            switch (currentDateType) {
+                case dateType.CURRENT: {
+                    JsonObject data = json.getAsJsonObject("current");
+                    processCurrentWeather(data);
+                    break;
                 }
-                JsonElement element = data.get(key);
-                weatherData.put(key, element.getAsString());
-                System.out.println(weatherData.get(key));
-                dataText.appendText(key + ": "+ weatherData.get(key) + "\n" + element.getAsString());
+                case dateType.ARCHIVAL: {
+                    processTimeSeriesWeather(json, "Dane archiwalne");
+                    break;
+                }
+                case dateType.FORECAST: {
+                    processTimeSeriesWeather(json, "Prognoza pogody");
+                    break;
+                }
             }
-
-
-
         } catch (Exception e) {
-            System.out.println(e);
+            System.err.println("Wystąpił błąd podczas przetwarzania danych pogodowych: " + e.getMessage());
             e.printStackTrace();
+            dataText.setText("Błąd przetwarzania danych: " + e.getMessage());
+        }
+    }
+
+    private void processCurrentWeather(JsonObject data) {
+        if (data == null) {
+            dataText.setText("Brak danych dla aktualnej pogody");
+            return;
+        }
+
+        StringBuilder output = new StringBuilder("AKTUALNA POGODA:\n");
+        int skipCount = 0;
+        for (String key : data.keySet()) {
+            if (skipCount < 2) {
+                skipCount++;
+                continue;
+            }
+            JsonElement element = data.get(key);
+            String value = element.isJsonPrimitive() ? element.getAsString() : element.toString();
+            weatherData.put(key, value);
+            String unit = getUnitForParameter(key);
+            output.append(formatWeatherDataEntry(key, value, unit)).append("\n");
+        }
+        dataText.setText(output.toString());
+    }
+
+    private void processTimeSeriesWeather(JsonObject json, String title) {
+        if (json == null || !json.has("hourly")) {
+            dataText.setText("Brak danych dla " + title.toLowerCase());
+            return;
+        }
+
+        JsonObject hourly = json.getAsJsonObject("hourly");
+        JsonObject hourlyUnits = json.getAsJsonObject("hourly_units");
+        JsonArray timeArray = hourly.getAsJsonArray("time");
+        StringBuilder output = new StringBuilder(title.toUpperCase() + ":\n\n");
+
+        for (int i = 0; i < timeArray.size(); i++) {
+            String time = timeArray.get(i).getAsString();
+            output.append("Czas: ").append(time).append("\n");
+
+            for (String key : hourly.keySet()) {
+                if (!key.equals("time")) {
+                    JsonArray valueArray = hourly.getAsJsonArray(key);
+                    if (i < valueArray.size()) {
+                        String value = valueArray.get(i).getAsString();
+                        String unit = hourlyUnits.has(key) ? " " + hourlyUnits.get(key).getAsString() : "";
+                        String mapKey = key + "_" + i;
+                        weatherData.put(mapKey, value);
+                        output.append("  - ").append(formatParameterName(key)).append(": ")
+                                .append(value).append(unit).append("\n");
+                    }
+                }
+            }
+            output.append("\n");
+        }
+
+        dataText.setText(output.toString());
+    }
+
+    private String formatParameterName(String key) {
+        for (Parameter param : params) {
+            if (param.getApiKey().equals(key)) {
+                return param.getDisplayName();
+            }
+        }
+        return " - ";
+    }
+
+    private String formatWeatherDataEntry(String key, String value, String unit) {
+        return formatParameterName(key) + ": " + value + " " + unit;
+    }
+
+    private String getUnitForParameter(String parameterName) {
+        switch (parameterName) {
+            case "temperature_2m": return "°C";
+            case "surface_pressure": return "hPa";
+            case "wind_speed_10m": return "km/h";
+            case "rain":return "mm";
+            case "soil_temperature_0cm": return "°C";
+            default: return "";
         }
     }
 }
