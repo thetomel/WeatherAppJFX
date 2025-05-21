@@ -7,10 +7,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -21,6 +25,8 @@ public class HomeController {
     private Map<String, String> weatherData;
     private ApiController weatherBox;
     public VBox checkboxContainer;
+//    public JsonObject lastData;
+public String lastData;
     List<Parameter> params = List.of(
             //CURRENT
             new Parameter("temperature_2m", "Temperatura", dateType.CURRENT),
@@ -75,6 +81,7 @@ public class HomeController {
 
     @FXML
     public void initialize() {
+        lastData = null;
         weatherBox = new ApiController();
         weatherData = new HashMap<>();
         dataText.setEditable(false);
@@ -181,7 +188,9 @@ public class HomeController {
             weatherData.put(key, value);
             String unit = getUnitForParameter(key);
             output.append(formatWeatherDataEntry(key, value, unit)).append("\n");
+
         }
+        lastData = output.toString();
         dataText.setText(output.toString());
     }
 
@@ -215,7 +224,7 @@ public class HomeController {
             }
             output.append("\n");
         }
-
+        lastData = output.toString();
         dataText.setText(output.toString());
     }
 
@@ -225,7 +234,7 @@ public class HomeController {
                 return param.getDisplayName();
             }
         }
-        return key; // Zwróć oryginalną nazwę, jeśli nie znajdziesz dopasowania
+        return key;
     }
 
     private String formatWeatherDataEntry(String key, String value, String unit) {
@@ -245,6 +254,24 @@ public class HomeController {
             case "cloud_cover": return "%";
             case "snowfall": return "cm";
             default: return "";
+        }
+    }
+    public void onChartButtonClick(){
+        if(lastData == null){
+            System.out.println("Alert needed here");
+        }else {
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("chart-view.fxml"));
+                Scene chartScene = new Scene(fxmlLoader.load(), 1000, 100);
+                ChartController chartController = fxmlLoader.getController();
+                chartController.setChartData(lastData);
+                Stage chartStage = new Stage();
+                chartStage.setScene(chartScene);
+                chartStage.setTitle("WeatherFX - Wykres");
+                chartStage.show();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 }
