@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -81,7 +82,8 @@ public class HomeController {
         dataText.setEditable(false);
         updateCheckboxesForDateType(currentDateType);
         switchVisibility(datePickerContainer, false);
-
+        startDate.setValue(LocalDate.now());
+        endDate.setValue(LocalDate.now());
         dateChoiceBox.getItems().addAll("Archiwalna", "Aktualna", "Prognoza");
         dateChoiceBox.setValue("Aktualna");
         dateChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, value) -> {
@@ -130,6 +132,10 @@ public class HomeController {
     @FXML
     protected void onButtonClick() {
         try {
+            if(dateChoiceBox.getSelectionModel().getSelectedItem().equals("Aktualna")) {
+                startDate.setValue(LocalDate.now());
+            }
+
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             JsonObject json = new Gson().fromJson(weatherBox.fetchWeather(placeText.getText(),
                     getSelectedApiKeys(), currentDateType,

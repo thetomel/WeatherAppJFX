@@ -16,9 +16,11 @@ public class MainApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         if (isInternetAvailable()) {
+
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("home-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
         stage.setTitle("WeatherFX");
+//        scene.getStylesheets().add(getClass().getResource("homeview.css").toExternalForm());
         stage.setScene(scene);
         stage.show();
         }
