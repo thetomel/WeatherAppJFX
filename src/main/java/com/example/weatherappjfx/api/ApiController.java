@@ -63,7 +63,7 @@ public class ApiController {
             throw new RuntimeException(e);
         }
     }
-    public String fetchWeather(String place, List<String> params, dateType type) {
+    public String fetchWeather(String place, List<String> params, dateType type, String startDate, String endDate) {
         double[] geoPosition = findPlace(place);
         try {
             StringBuilder urlFetch = new StringBuilder(url + "forecast?latitude=" + geoPosition[0] + "&longitude=" + geoPosition[1]);
@@ -78,15 +78,8 @@ public class ApiController {
                 urlFetch.append(',').append(item);
             }
 
-            switch (type) {
-                case ARCHIVAL:
-                    urlFetch.append("&start_date=2025-05-06&end_date=2025-05-10");
-                    break;
-                case FORECAST:
-                    urlFetch.append("&forecast_days=14");
-                    break;
-                default:
-                    break;
+            if (type == dateType.FORECAST || type == dateType.ARCHIVAL) {
+                    urlFetch.append("&start_date=").append(startDate).append("&end_date=").append(endDate);
             }
 
             HttpClient weatherClient = HttpClient.newHttpClient();

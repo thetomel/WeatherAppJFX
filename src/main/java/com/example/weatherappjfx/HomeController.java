@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,7 +130,10 @@ public class HomeController {
     @FXML
     protected void onButtonClick() {
         try {
-            JsonObject json = new Gson().fromJson(weatherBox.fetchWeather(placeText.getText(), getSelectedApiKeys(), currentDateType), JsonObject.class);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            JsonObject json = new Gson().fromJson(weatherBox.fetchWeather(placeText.getText(),
+                    getSelectedApiKeys(), currentDateType,
+                    formatter.format(startDate.getValue()), formatter.format(endDate.getValue())), JsonObject.class);
             weatherData.clear();
             dataText.clear();
 
