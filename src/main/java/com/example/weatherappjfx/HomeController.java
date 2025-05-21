@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,6 @@ public class HomeController {
     private Map<String, String> weatherData;
     private ApiController weatherBox;
     public VBox checkboxContainer;
-//    public JsonObject lastData;
 public String lastData;
     List<Parameter> params = List.of(
             //CURRENT
@@ -71,17 +71,21 @@ public String lastData;
     @FXML
     private TextArea dataText;
     @FXML
+    private Label errorMassage;
+    @FXML
     private ChoiceBox<String> dateChoiceBox;
     @FXML
     private HBox datePickerContainer;
 
     private dateType currentDateType = dateType.CURRENT;
 
+    private fileManager fm;
     private final Map<Parameter, CheckBox> checkBoxMap = new HashMap<>();
 
     @FXML
     public void initialize() {
         lastData = null;
+        fm = new fileManager();
         weatherBox = new ApiController();
         weatherData = new HashMap<>();
         dataText.setEditable(false);
@@ -136,6 +140,7 @@ public String lastData;
 
     @FXML
     protected void onButtonClick() {
+        errorMassage.setText("");
         try {
             if(dateChoiceBox.getSelectionModel().getSelectedItem().equals("Aktualna")) {
                 startDate.setValue(LocalDate.now());
@@ -272,6 +277,19 @@ public String lastData;
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
+        }
+    }
+    public void onSaveButtonClick(){
+        if(lastData!=null) {
+            StringBuilder fileName = new StringBuilder();
+            fileName.append("WeatherFX - Dane -");
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy_HH-mm-ss");
+            fileName.append(formatter.format(now));
+            fm.writeToFile(fileName.toString(), lastData);
+        }
+        else {errorMassage.setText("Brak danych");
+            errorMassage.setStyle("-fx-text-fill: red;");
         }
     }
 }

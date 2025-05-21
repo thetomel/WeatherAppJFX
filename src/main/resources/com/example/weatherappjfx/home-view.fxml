@@ -50,8 +50,9 @@
                       prefHeight="300"/>
 
             <HBox spacing="10">
-                <Button text="Zapisz dane" fx:id="saveButton"/>
+                <Button text="Zapisz dane" fx:id="saveButton" onAction="#onSaveButtonClick"/>
                 <Button text="Przejdź do wykresów" fx:id="chartButton" onAction="#onChartButtonClick"/>
+                <Label fx:id="errorMassage"></Label>
             </HBox>
         </VBox>
     </GridPane>
