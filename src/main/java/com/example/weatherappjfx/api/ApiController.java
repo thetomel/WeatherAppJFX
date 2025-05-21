@@ -63,32 +63,37 @@ public class ApiController {
             throw new RuntimeException(e);
         }
     }
-    public String fetchWeather(String place, List<String> params) {
+    public String fetchWeather(String place, List<String> params, dateType type, String startDate, String endDate) {
         double[] geoPosition = findPlace(place);
         try {
-            String urlFetch = url + "forecast?latitude=" + geoPosition[0] + "&longitude=" + geoPosition[1] + "&current=";
-            for (String item : params) {
-                urlFetch += ',' + item;
+            StringBuilder urlFetch = new StringBuilder(url + "forecast?latitude=" + geoPosition[0] + "&longitude=" + geoPosition[1]);
+
+            if (type == dateType.CURRENT) {
+                urlFetch.append("&current=");
+            } else {
+                urlFetch.append("&hourly=");
             }
-            System.out.println(urlFetch);
+
+            for (String item : params) {
+                urlFetch.append(',').append(item);
+            }
+
+            if (type == dateType.FORECAST || type == dateType.ARCHIVAL) {
+                    urlFetch.append("&start_date=").append(startDate).append("&end_date=").append(endDate);
+            }
+
             HttpClient weatherClient = HttpClient.newHttpClient();
 
-            HttpRequest request = HttpRequest
-                    .newBuilder()
-                    .uri(URI.create(urlFetch))
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(urlFetch.toString()))
                     .GET()
                     .build();
 
-            HttpResponse<String> response = weatherClient.newBuilder()
-                    .build()
-                    .send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(response.body());
+            HttpResponse<String> response = weatherClient.send(request, HttpResponse.BodyHandlers.ofString());
             return response.body();
-        }
-        catch(Exception e) {
-            System.err.println(e.getMessage());
-            throw new RuntimeException("Error while fetching weather data");
-
+        } catch (Exception e) {
+            throw new RuntimeException("Error while fetching weather data", e);
         }
     }
+
 }
