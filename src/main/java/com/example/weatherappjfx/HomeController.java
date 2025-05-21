@@ -57,8 +57,6 @@ public class HomeController {
     );
 
     @FXML
-    private Label welcomeText;
-    @FXML
     private TextField placeText;
     @FXML
     private DatePicker startDate;
@@ -117,9 +115,9 @@ public class HomeController {
         }
     }
 
-    void switchVisibility(HBox vbox, boolean visible) {
-        vbox.setVisible(visible);
-        vbox.setManaged(visible);
+    void switchVisibility(HBox hbox, boolean visible) {
+        hbox.setVisible(visible);
+        hbox.setManaged(visible);
     }
 
     public List<String> getSelectedApiKeys() {
