@@ -8,18 +8,34 @@
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
-   <ChoiceBox fx:id="dateChoiceBox" prefWidth="150.0" />
+   <GridPane prefHeight="335.0" prefWidth="354.0">
+     <columnConstraints>
+       <ColumnConstraints hgrow="SOMETIMES" maxWidth="301.99998474121094" minWidth="10.0" prefWidth="223.0" />
+       <ColumnConstraints hgrow="SOMETIMES" maxWidth="172.0" minWidth="10.0" prefWidth="131.0" />
+     </columnConstraints>
+     <rowConstraints>
+       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
 
-    <HBox fx:id="datePickerContainer">
-        <Label text="Dzień" />
-        <DatePicker fx:id="startDate" />
-        <Label text="Data" />
-        <DatePicker fx:id="endDate" />
-    </HBox>
-
-   <Label text="Miejscowość" />
-   <TextField fx:id="placeText" />
-    <VBox fx:id="checkboxContainer" spacing="5" />
-    <Button onAction="#onButtonClick" text="Pokaż Dane" />
-    <TextArea fx:id="dataText" />
+     </rowConstraints>
+      <children>
+         <VBox prefHeight="100.0" prefWidth="200.0">
+            <children>
+            
+                <HBox fx:id="datePickerContainer">
+                    <Label text="Dzień" />
+                    <DatePicker fx:id="startDate" />
+                    <Label text="Data" />
+                    <DatePicker fx:id="endDate" />
+                </HBox>
+            
+               <Label text="Miejscowość" />
+               <TextField fx:id="placeText" />
+                <VBox fx:id="checkboxContainer" spacing="5" />
+                <Button onAction="#onButtonClick" text="Pokaż Dane" />
+                <TextArea fx:id="dataText" prefHeight="192.0" prefWidth="228.0" />
+               <ChoiceBox fx:id="dateChoiceBox" prefWidth="150.0" />
+            </children></VBox>
+         <VBox prefHeight="333.0" prefWidth="150.0" GridPane.columnIndex="1" />
+      </children>
+   </GridPane>
 </VBox>
