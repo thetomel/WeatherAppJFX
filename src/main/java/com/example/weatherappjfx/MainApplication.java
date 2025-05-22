@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -15,10 +16,13 @@ import java.net.InetAddress;
 public class MainApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+        Image image = new Image(getClass().getResourceAsStream("/logo.png"));
         if (isInternetAvailable()) {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("home-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
         stage.setTitle("WeatherFX");
+        stage.getIcons().add(image);
+        scene.getStylesheets().add(getClass().getResource("homeview.css").toExternalForm());
         stage.setScene(scene);
         stage.show();
         }

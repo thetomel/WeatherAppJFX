@@ -7,10 +7,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +26,7 @@ public class HomeController {
     private Map<String, String> weatherData;
     private ApiController weatherBox;
     public VBox checkboxContainer;
+public String lastData;
     List<Parameter> params = List.of(
             //CURRENT
             new Parameter("temperature_2m", "Temperatura", dateType.CURRENT),
@@ -56,8 +63,6 @@ public class HomeController {
     );
 
     @FXML
-    private Label welcomeText;
-    @FXML
     private TextField placeText;
     @FXML
     private DatePicker startDate;
@@ -66,22 +71,31 @@ public class HomeController {
     @FXML
     private TextArea dataText;
     @FXML
+    private Button chartButton;
+    @FXML
+    private Label errorMassage;
+    @FXML
     private ChoiceBox<String> dateChoiceBox;
     @FXML
     private HBox datePickerContainer;
 
     private dateType currentDateType = dateType.CURRENT;
 
+    private fileManager fm;
     private final Map<Parameter, CheckBox> checkBoxMap = new HashMap<>();
 
     @FXML
     public void initialize() {
+        lastData = null;
+        fm = new fileManager();
+        chartButton.setVisible(false);
         weatherBox = new ApiController();
         weatherData = new HashMap<>();
         dataText.setEditable(false);
         updateCheckboxesForDateType(currentDateType);
         switchVisibility(datePickerContainer, false);
-
+        startDate.setValue(LocalDate.now());
+        endDate.setValue(LocalDate.now());
         dateChoiceBox.getItems().addAll("Archiwalna", "Aktualna", "Prognoza");
         dateChoiceBox.setValue("Aktualna");
         dateChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, value) -> {
@@ -115,9 +129,12 @@ public class HomeController {
         }
     }
 
-    void switchVisibility(HBox vbox, boolean visible) {
-        vbox.setVisible(visible);
-        vbox.setManaged(visible);
+    void switchVisibility(HBox hbox, boolean visible) {
+        hbox.setVisible(visible);
+        hbox.setManaged(visible);
+    }
+    void switchVisibility(Button button, boolean visible) {
+        button.setVisible(visible);
     }
 
     public List<String> getSelectedApiKeys() {
@@ -129,7 +146,12 @@ public class HomeController {
 
     @FXML
     protected void onButtonClick() {
+        errorMassage.setText("");
         try {
+            if(dateChoiceBox.getSelectionModel().getSelectedItem().equals("Aktualna")) {
+                startDate.setValue(LocalDate.now());
+            }
+
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             JsonObject json = new Gson().fromJson(weatherBox.fetchWeather(placeText.getText(),
                     getSelectedApiKeys(), currentDateType,
@@ -160,6 +182,7 @@ public class HomeController {
     }
 
     private void processCurrentWeather(JsonObject data) {
+        switchVisibility(chartButton, false);
         if (data == null) {
             dataText.setText("Brak danych dla aktualnej pogody");
             return;
@@ -177,11 +200,14 @@ public class HomeController {
             weatherData.put(key, value);
             String unit = getUnitForParameter(key);
             output.append(formatWeatherDataEntry(key, value, unit)).append("\n");
+
         }
+        lastData = output.toString();
         dataText.setText(output.toString());
     }
 
     private void processTimeSeriesWeather(JsonObject json, String title) {
+        switchVisibility(chartButton, true);
         if (json == null || !json.has("hourly")) {
             dataText.setText("Brak danych dla " + title.toLowerCase());
             return;
@@ -211,7 +237,7 @@ public class HomeController {
             }
             output.append("\n");
         }
-
+        lastData = output.toString();
         dataText.setText(output.toString());
     }
 
@@ -221,7 +247,7 @@ public class HomeController {
                 return param.getDisplayName();
             }
         }
-        return key; // Zwróć oryginalną nazwę, jeśli nie znajdziesz dopasowania
+        return key;
     }
 
     private String formatWeatherDataEntry(String key, String value, String unit) {
@@ -241,6 +267,42 @@ public class HomeController {
             case "cloud_cover": return "%";
             case "snowfall": return "cm";
             default: return "";
+        }
+    }
+    public void onChartButtonClick(){
+        if(lastData == null){
+            errorMassage.setText("Brak danych do wyświetlenia wykresu");
+            errorMassage.setStyle("-fx-text-fill: red;");
+        }else {
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("chart-view.fxml"));
+                Scene chartScene = new Scene(fxmlLoader.load(), 1000, 700);
+                ChartController chartController = fxmlLoader.getController();
+                chartController.setChartData(lastData);
+                Stage chartStage = new Stage();
+                chartScene.getStylesheets().add(getClass().getResource("chartview.css").toExternalForm());
+                chartStage.setScene(chartScene);
+                chartStage.setTitle("WeatherFX - Wykres");
+                chartStage.setMinWidth(1280);
+                chartStage.setMinHeight(720);
+                chartStage.show();
+            } catch (IOException e) {
+                errorMassage.setText("Błąd podczas otwierania wykresu");
+                errorMassage.setStyle("-fx-text-fill: red;");
+            }
+        }
+    }
+    public void onSaveButtonClick(){
+        if(lastData!=null) {
+            StringBuilder fileName = new StringBuilder();
+            fileName.append("WeatherFX - Dane -");
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy_HH-mm-ss");
+            fileName.append(formatter.format(now));
+            fm.writeToFile(fileName.toString(), lastData);
+        }
+        else {errorMassage.setText("Brak danych");
+            errorMassage.setStyle("-fx-text-fill: red;");
         }
     }
 }

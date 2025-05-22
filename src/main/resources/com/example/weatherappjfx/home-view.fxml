@@ -1,41 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" prefHeight="381.0" prefWidth="393.0" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.weatherappjfx.HomeController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-    </padding>
-   <GridPane prefHeight="335.0" prefWidth="354.0">
-     <columnConstraints>
-       <ColumnConstraints hgrow="SOMETIMES" maxWidth="301.99998474121094" minWidth="10.0" prefWidth="223.0" />
-       <ColumnConstraints hgrow="SOMETIMES" maxWidth="172.0" minWidth="10.0" prefWidth="131.0" />
-     </columnConstraints>
-     <rowConstraints>
-       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+<VBox xmlns="http://javafx.com/javafx/17.0.12"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.weatherappjfx.HomeController"
+      spacing="20"
+      alignment="CENTER"
+      minHeight="700.0"
+      minWidth="900.0"
+      styleClass="root">
 
-     </rowConstraints>
-      <children>
-         <VBox prefHeight="100.0" prefWidth="200.0">
-            <children>
-            
-                <HBox fx:id="datePickerContainer">
-                    <Label text="Dzień" />
-                    <DatePicker fx:id="startDate" />
-                    <Label text="Data" />
-                    <DatePicker fx:id="endDate" />
-                </HBox>
-            
-               <Label text="Miejscowość" />
-               <TextField fx:id="placeText" />
-                <VBox fx:id="checkboxContainer" spacing="5" />
-                <Button onAction="#onButtonClick" text="Pokaż Dane" />
-                <TextArea fx:id="dataText" prefHeight="192.0" prefWidth="228.0" />
-               <ChoiceBox fx:id="dateChoiceBox" prefWidth="150.0" />
-            </children></VBox>
-         <VBox prefHeight="333.0" prefWidth="150.0" GridPane.columnIndex="1" />
-      </children>
-   </GridPane>
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <GridPane hgap="20" vgap="15" styleClass="main-grid">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50"/>
+            <ColumnConstraints percentWidth="50"/>
+        </columnConstraints>
+
+        <VBox spacing="15" GridPane.columnIndex="0">
+            <HBox spacing="10" fx:id="datePickerContainer">
+                <Label text="Dzień"/>
+                <DatePicker fx:id="startDate"/>
+                <Label text="Data"/>
+                <DatePicker fx:id="endDate"/>
+            </HBox>
+
+            <Label text="Miejscowość"/>
+            <TextField fx:id="placeText"/>
+
+            <VBox fx:id="checkboxContainer" spacing="5"/>
+
+            <ChoiceBox fx:id="dateChoiceBox" prefWidth="150.0"/>
+
+            <Button fx:id="loadButton" text="Pokaż Dane" onAction="#onButtonClick"/>
+        </VBox>
+
+        <VBox spacing="15" GridPane.columnIndex="1">
+            <Label text="Dane (wyniki):"/>
+            <TextArea fx:id="dataText"
+                      prefRowCount="15"
+                      wrapText="true"
+                      prefWidth="400"
+                      prefHeight="300"/>
+
+            <HBox spacing="10">
+                <Button text="Zapisz dane" fx:id="saveButton" onAction="#onSaveButtonClick"/>
+                <Button text="Przejdź do wykresów" fx:id="chartButton" onAction="#onChartButtonClick"/>
+                <Label fx:id="errorMassage"></Label>
+            </HBox>
+        </VBox>
+    </GridPane>
 </VBox>
