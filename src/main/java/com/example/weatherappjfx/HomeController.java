@@ -71,6 +71,8 @@ public String lastData;
     @FXML
     private TextArea dataText;
     @FXML
+    private Button chartButton;
+    @FXML
     private Label errorMassage;
     @FXML
     private ChoiceBox<String> dateChoiceBox;
@@ -86,6 +88,7 @@ public String lastData;
     public void initialize() {
         lastData = null;
         fm = new fileManager();
+        chartButton.setVisible(false);
         weatherBox = new ApiController();
         weatherData = new HashMap<>();
         dataText.setEditable(false);
@@ -129,6 +132,9 @@ public String lastData;
     void switchVisibility(HBox hbox, boolean visible) {
         hbox.setVisible(visible);
         hbox.setManaged(visible);
+    }
+    void switchVisibility(Button button, boolean visible) {
+        button.setVisible(visible);
     }
 
     public List<String> getSelectedApiKeys() {
@@ -176,6 +182,7 @@ public String lastData;
     }
 
     private void processCurrentWeather(JsonObject data) {
+        switchVisibility(chartButton, false);
         if (data == null) {
             dataText.setText("Brak danych dla aktualnej pogody");
             return;
@@ -200,6 +207,7 @@ public String lastData;
     }
 
     private void processTimeSeriesWeather(JsonObject json, String title) {
+        switchVisibility(chartButton, true);
         if (json == null || !json.has("hourly")) {
             dataText.setText("Brak danych dla " + title.toLowerCase());
             return;
@@ -263,19 +271,24 @@ public String lastData;
     }
     public void onChartButtonClick(){
         if(lastData == null){
-            System.out.println("Alert needed here");
+            errorMassage.setText("Brak danych do wyświetlenia wykresu");
+            errorMassage.setStyle("-fx-text-fill: red;");
         }else {
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("chart-view.fxml"));
-                Scene chartScene = new Scene(fxmlLoader.load(), 1000, 100);
+                Scene chartScene = new Scene(fxmlLoader.load(), 1000, 700);
                 ChartController chartController = fxmlLoader.getController();
                 chartController.setChartData(lastData);
                 Stage chartStage = new Stage();
+                chartScene.getStylesheets().add(getClass().getResource("chartview.css").toExternalForm());
                 chartStage.setScene(chartScene);
                 chartStage.setTitle("WeatherFX - Wykres");
+                chartStage.setMinWidth(1280);
+                chartStage.setMinHeight(720);
                 chartStage.show();
             } catch (IOException e) {
-                System.out.println(e.getMessage());
+                errorMassage.setText("Błąd podczas otwierania wykresu");
+                errorMassage.setStyle("-fx-text-fill: red;");
             }
         }
     }

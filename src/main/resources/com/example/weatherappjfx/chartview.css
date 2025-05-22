@@ -1,0 +1,94 @@
+.root {
+    -fx-background-color: #f5f5f5;
+    -fx-text-fill: #2e2e2e;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.label {
+    -fx-text-fill: #2e2e2e;
+    -fx-font-size: 14px;
+}
+
+.label.small {
+    -fx-font-size: 12px;
+    -fx-text-fill: #666666;
+}
+
+.label.note {
+    -fx-font-size: 11px;
+    -fx-text-fill: #888888;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.vbox {
+    -fx-padding: 5;
+}
+
+.check-box {
+    -fx-text-fill: #777777;
+    -fx-font-size: 14px;
+}
+
+.check-box .box {
+    -fx-background-color: #878787;
+    -fx-border-color: #6a0944;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 3;
+}
+
+.check-box .mark {
+    -fx-background-color: transparent;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #870f57;
+    -fx-border-color: #a8146e;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: white;
+}
+
+.separator {
+    -fx-background-color: #ccc;
+}
+
+.chart {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #870f57;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.chart-plot-background {
+    -fx-background-color: #f5f5f5;
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke: #cccccc;
+    -fx-stroke-dash-array: 2 2;
+}
+
+.chart-title {
+    -fx-text-fill: #2e2e2e;
+    -fx-font-size: 16px;
+}
+
+.axis {
+    -fx-tick-label-fill: #2e2e2e;
+    -fx-axis-label-fill: #2e2e2e;
+}
+
+.axis .tick-mark {
+    -fx-stroke: #888888;
+}
